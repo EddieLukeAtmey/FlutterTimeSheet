@@ -2,17 +2,17 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
-class EntryDetail extends StatefulWidget {
+class EntryDetailWidget extends StatefulWidget {
   final DateTime selectedDate;
   final Function onSave;
 
-  const EntryDetail({required this.selectedDate, required this.onSave, super.key});
+  const EntryDetailWidget({required this.selectedDate, required this.onSave, super.key});
 
   @override
   EntryDetailState createState() => EntryDetailState();
 }
 
-class EntryDetailState extends State<EntryDetail> {
+class EntryDetailState extends State<EntryDetailWidget> {
   final _titleController = TextEditingController();
   TimeOfDay _startTime = TimeOfDay.now();
   String _repeat = 'Never';

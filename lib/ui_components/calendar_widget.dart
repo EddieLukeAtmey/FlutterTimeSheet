@@ -2,7 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:table_calendar/table_calendar.dart';
 import '../models/timesheet_entry.dart';
-import 'entry_detail.dart';
+import 'entry_detail_widget.dart';
 import 'package:intl/intl.dart';
 
 class CalendarWidget extends StatefulWidget {
@@ -25,12 +25,11 @@ class CalendarWidgetState extends State<CalendarWidget> {
 
    void _openEntryDetail() {
     if (_selectedDay == null) { return; }
-
-
+    
     Navigator.push(
       context,
       CupertinoPageRoute(
-        builder: (context) => EntryDetail(
+        builder: (context) => EntryDetailWidget(
           selectedDate: _selectedDay!,
           onSave: (title, startTime, repeat, endRepeat, endDate, remind) {
             final newEntry = TimesheetEntry(
