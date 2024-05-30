@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
@@ -20,88 +21,103 @@ class EntryDetailState extends State<EntryDetail> {
   String _remind = 'None';
 
   Future<void> _selectTime(BuildContext context) async {
-    final TimeOfDay? picked = await showTimePicker(
+    final TimeOfDay? picked = await showCupertinoModalPopup(
       context: context,
-      initialTime: _startTime,
+      builder: (context) {
+        return SizedBox(
+          height: 200,
+          child: CupertinoDatePicker(
+            mode: CupertinoDatePickerMode.time,
+            initialDateTime: DateTime(
+              DateTime.now().year,
+              DateTime.now().month,
+              DateTime.now().day,
+              _startTime.hour,
+              _startTime.minute,
+            ),
+            onDateTimeChanged: (DateTime newTime) {
+              setState(() {
+                _startTime = TimeOfDay.fromDateTime(newTime);
+              });
+            },
+          ),
+        );
+      },
     );
-    if (picked != null && picked != _startTime) {
-      setState(() {
-        _startTime = picked;
-      });
-    }
   }
 
   Future<void> _selectDate(BuildContext context) async {
-    final DateTime? picked = await showDatePicker(
+    final DateTime? picked = await showCupertinoModalPopup(
       context: context,
-      initialDate: DateTime.now(),
-      firstDate: DateTime.now(),
-      lastDate: DateTime(2101),
+      builder: (context) {
+        return SizedBox(
+          height: 200,
+          child: CupertinoDatePicker(
+            mode: CupertinoDatePickerMode.date,
+            initialDateTime: DateTime.now(),
+            onDateTimeChanged: (DateTime newDate) {
+              setState(() {
+                _endDate = newDate;
+              });
+            },
+          ),
+        );
+      },
     );
-    if (picked != null && picked != _endDate) {
-      setState(() {
-        _endDate = picked;
-      });
-    }
   }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Add Entry'),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.save),
-            onPressed: () {
-              widget.onSave(
-                _titleController.text,
-                _startTime,
-                _repeat,
-                _endRepeat,
-                _endDate,
-                _remind,
-              );
-              Navigator.pop(context);
-            },
-          ),
-        ],
+    return CupertinoPageScaffold(
+      navigationBar: CupertinoNavigationBar(
+        middle: const Text('Add Entry'),
+        trailing: GestureDetector(
+          child: const Icon(CupertinoIcons.check_mark),
+          onTap: () {
+            widget.onSave(
+              _titleController.text,
+              _startTime,
+              _repeat,
+              _endRepeat,
+              _endDate,
+              _remind,
+            );
+            Navigator.pop(context);
+          },
+        ),
       ),
-      body: Padding(
+      child: Padding(
         padding: const EdgeInsets.all(8.0),
         child: Column(
           children: [
-            TextField(
+            CupertinoTextField(
               controller: _titleController,
-              decoration: const InputDecoration(labelText: 'Title'),
+              placeholder: 'Title',
             ),
-            ListTile(
-              title: Text('Start Time: ${_startTime.format(context)}'),
-              trailing: const Icon(Icons.keyboard_arrow_down),
-              onTap: () => _selectTime(context),
+            CupertinoButton(
+              onPressed: () => _selectTime(context),
+              child: Text('Start Time: ${_startTime.format(context)}'),
             ),
-            ListTile(
-              title: Text('Repeat: $_repeat'),
-              trailing: const Icon(Icons.keyboard_arrow_down),
-              onTap: () async {
-                final selected = await showDialog<String>(
+            CupertinoButton(
+              onPressed: () async {
+                final selected = await showCupertinoModalPopup<String>(
                   context: context,
-                  builder: (context) => SimpleDialog(
+                  builder: (context) => CupertinoActionSheet(
                     title: const Text('Repeat'),
-                    children: [
-                      SimpleDialogOption(
+                    actions: [
+                      CupertinoActionSheetAction(
                         onPressed: () => Navigator.pop(context, 'Never'),
                         child: const Text('Never'),
                       ),
-                      SimpleDialogOption(
+                      CupertinoActionSheetAction(
                         onPressed: () => Navigator.pop(context, 'Every day'),
                         child: const Text('Every day'),
                       ),
-                      SimpleDialogOption(
+                      CupertinoActionSheetAction(
                         onPressed: () => Navigator.pop(context, 'Every month'),
                         child: const Text('Every month'),
                       ),
-                      SimpleDialogOption(
+                      CupertinoActionSheetAction(
                         onPressed: () => Navigator.pop(context, 'Custom'),
                         child: const Text('Custom'),
                       ),
@@ -114,21 +130,20 @@ class EntryDetailState extends State<EntryDetail> {
                   });
                 }
               },
+              child: Text('Repeat: $_repeat'),
             ),
-            ListTile(
-              title: Text('End Repeat: $_endRepeat'),
-              trailing: const Icon(Icons.keyboard_arrow_down),
-              onTap: () async {
-                final selected = await showDialog<String>(
+            CupertinoButton(
+              onPressed: () async {
+                final selected = await showCupertinoModalPopup<String>(
                   context: context,
-                  builder: (context) => SimpleDialog(
+                  builder: (context) => CupertinoActionSheet(
                     title: const Text('End Repeat'),
-                    children: [
-                      SimpleDialogOption(
+                    actions: [
+                      CupertinoActionSheetAction(
                         onPressed: () => Navigator.pop(context, 'Never'),
                         child: const Text('Never'),
                       ),
-                      SimpleDialogOption(
+                      CupertinoActionSheetAction(
                         onPressed: () => Navigator.pop(context, 'On date'),
                         child: const Text('On date'),
                       ),
@@ -141,37 +156,35 @@ class EntryDetailState extends State<EntryDetail> {
                   });
                 }
               },
+              child: Text('End Repeat: $_endRepeat'),
             ),
             if (_endRepeat == 'On date')
-              ListTile(
-                title: Text(
+              CupertinoButton(
+                onPressed: () => _selectDate(context),
+                child: Text(
                   'End Date: ${_endDate != null ? DateFormat.yMd().format(_endDate!) : 'Select date'}',
                 ),
-                trailing: const Icon(Icons.keyboard_arrow_down),
-                onTap: () => _selectDate(context),
               ),
-            ListTile(
-              title: Text('Remind: $_remind'),
-              trailing: const Icon(Icons.keyboard_arrow_down),
-              onTap: () async {
-                final selected = await showDialog<String>(
+            CupertinoButton(
+              onPressed: () async {
+                final selected = await showCupertinoModalPopup<String>(
                   context: context,
-                  builder: (context) => SimpleDialog(
+                  builder: (context) => CupertinoActionSheet(
                     title: const Text('Remind'),
-                    children: [
-                      SimpleDialogOption(
+                    actions: [
+                      CupertinoActionSheetAction(
                         onPressed: () => Navigator.pop(context, 'None'),
                         child: const Text('None'),
                       ),
-                      SimpleDialogOption(
+                      CupertinoActionSheetAction(
                         onPressed: () => Navigator.pop(context, 'After 5 mins'),
                         child: const Text('After 5 mins'),
                       ),
-                      SimpleDialogOption(
+                      CupertinoActionSheetAction(
                         onPressed: () => Navigator.pop(context, 'After 10 mins'),
                         child: const Text('After 10 mins'),
                       ),
-                      SimpleDialogOption(
+                      CupertinoActionSheetAction(
                         onPressed: () => Navigator.pop(context, 'Custom'),
                         child: const Text('Custom'),
                       ),
@@ -184,6 +197,7 @@ class EntryDetailState extends State<EntryDetail> {
                   });
                 }
               },
+              child: Text('Remind: $_remind'),
             ),
           ],
         ),
