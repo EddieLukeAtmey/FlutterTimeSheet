@@ -114,7 +114,10 @@ class CalendarWidgetState extends State<CalendarWidget> {
           final entry = entriesForSelectedDay[index];
           return ListTile(
             title: Text(entry.description),
-            subtitle: Text(entry.date.toIso8601String()),
+            subtitle: Text(DateFormat.jm().format(entry.date)),
+            onTap: () {
+              // TODO: Implement editing entry functionality later
+            },
           );
         },
       ),
