@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../ui_components/calendar_widget.dart';
 
 void main() {
   runApp(const MyApp());
@@ -46,8 +47,9 @@ class MyHomePage extends StatelessWidget {
       appBar: AppBar(
         title: const Text('My baby timesheet'),
       ),
-      body: const Center(
-        child: Text('It\'s so cute'),
+      body: Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: CalendarWidget(),
       ),
     );
   }
