@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:table_calendar/table_calendar.dart';
 import '../models/timesheet_entry.dart';
+import 'entry_detail.dart';
+import 'package:intl/intl.dart';
 
 class CalendarWidget extends StatefulWidget {
   const CalendarWidget({super.key});
@@ -19,6 +21,27 @@ class CalendarWidgetState extends State<CalendarWidget> {
       _entries.add(entry);
     });
   }
+
+  void _openEntryDetail() {
+    if (_selectedDay != null) {
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => EntryDetail(
+            selectedDate: _selectedDay!,
+            onSave: (title, startTime, repeat, endRepeat, endDate, remind) {
+              final newEntry = TimesheetEntry(
+                date: _selectedDay!,
+                description: title,
+              );
+              _addEntry(newEntry);
+            },
+          ),
+        ),
+      );
+    }
+  }
+
 
   @override
   Widget build(BuildContext context) {
@@ -48,39 +71,36 @@ class CalendarWidgetState extends State<CalendarWidget> {
           onPageChanged: (focusedDay) {
             _focusedDay = focusedDay;
           },
-        ),
-        const SizedBox(height: 8.0), _selectedDay != null ? _buildEntryForm() : Container(), _buildEntriesList(),
-      ],
-    );
-  }
-
-  Widget _buildEntryForm() {
-    final TextEditingController _controller = TextEditingController();
-
-    return Padding(
-      padding: const EdgeInsets.all(8.0),
-      child: Column(
-        children: [
-          TextField(
-            controller: _controller,
-            decoration: const InputDecoration(
-              labelText: 'Entry Description',
-            ),
-          ),
-          ElevatedButton(
-            onPressed: () {
-              if (_controller.text.isNotEmpty) {
-                _addEntry(TimesheetEntry(
-                  date: _selectedDay!,
-                  description: _controller.text,
-                ));
-                _controller.clear();
+          eventLoader: (day) {
+            return _entries.where((entry) => isSameDay(entry.date, day)).toList();
+          },
+          calendarBuilders: CalendarBuilders(
+            markerBuilder: (context, date, events) {
+              if (events.isNotEmpty) {
+                return Positioned(
+                  right: 1,
+                  bottom: 1,
+                  child: Container(
+                    decoration: const BoxDecoration(
+                      shape: BoxShape.circle,
+                      color: Colors.pink,
+                    ),
+                    width: 7.0,
+                    height: 7.0,
+                  ),
+                );
               }
+              return null;
             },
-            child: const Text('Add Entry'),
           ),
-        ],
-      ),
+        ),
+        const SizedBox(height: 8.0),
+        ElevatedButton(
+          onPressed: _openEntryDetail,
+          child: const Text('Add Entry'),
+        ),
+        _buildEntriesList(),
+      ],
     );
   }
 
